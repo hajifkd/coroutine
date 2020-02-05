@@ -4,11 +4,14 @@
 
 void count(coroutine *frame)
 {
+    printf("address of frame structure: 0x%p\n", frame);
     int hoge = 0;
     printf("address of local variable in coroutine: 0x%p\n", &hoge);
     for (int i = 0; i < *((int64_t *)frame->env); i++)
     {
         puts("coroutine called");
+        printf("address of local variable in coroutine: 0x%p\n", &hoge);
+
         yield(frame, &i);
     }
 }

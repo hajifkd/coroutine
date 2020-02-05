@@ -19,5 +19,7 @@ extern coroutine *new_coroutine(void (*func)(coroutine *), void *env);
 extern void *call_coroutine(coroutine *frame);
 extern void yield(coroutine *frame, void *value);
 extern void show_info(coroutine *coroutine);
+extern void initial_call(coroutine *frame, uint64_t *rbp, void *func);
+extern void back_to_coroutine(struct __jmp_buf_tag *__env, uint64_t *rbp);
 
 #endif

@@ -3,7 +3,7 @@
 ## Compile
 
 ```sh
-gcc -masm=intel -std=c11 -Wall coroutine.c main.c
+gcc -masm=intel -std=c11 -Wall coroutine.c call.s main.c
 ./a.out
 ```
 

@@ -42,32 +42,15 @@ void *call_coroutine(coroutine *frame)
 {
     if (setjmp(*(frame->context_caller)) == 0)
     {
-        //
+        uint64_t *rbp = frame->stack + STACK_SIZE - 1;
         if (!frame->value)
         {
-            uint64_t *rsp = frame->stack + STACK_SIZE - 1;
             void *func = frame->func;
-            // オペランド制約 https://gcc.gnu.org/onlinedocs/gcc/Machine-Constraints.html
-            __asm__(
-                "mov rdi, %0\n\t"
-                "mov rdx, rbp\n\t"
-                "mov rsi, rsp\n\t"
-                "mov rbp, %1\n\t"
-                "mov rsp, rbp\n\t"
-                "push rdx\n\t"
-                "push rsi\n\t"
-                "call %2\n\t" // not return if it yields.
-                "pop rsi\n\t" // If return, it starts here. We should restore rsp and rbp.
-                "pop rdx\n\t"
-                "mov rbp, rdx\n\t"
-                "mov rsp, rsi\n\t"
-                :
-                : "a"(frame), "b"(rsp), "c"(func)
-                : "rdi", "rdx", "rsi");
+            initial_call(frame, rbp, func);
         }
         else
         {
-            longjmp(*(frame->context_coroutine), 1);
+            back_to_coroutine(*(frame->context_coroutine), rbp);
         }
 
         // if reached
