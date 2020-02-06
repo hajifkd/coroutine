@@ -5,11 +5,20 @@
 back_to_coroutine:
     push rbp
     mov rbp, rsp
-    lea rax, qword ptr [rbp + 0x8]
-    mov qword ptr [rsi], rax
+    push rdx
+    lea rax, qword ptr [rip + .back_to_caller]
+    push rax
+    push rbp
+    lea rax, qword ptr [rsp]
+    mov qword ptr [rsi - 0x8], rax /* rewrite ret addr */
     mov rsi, 1
     call longjmp
-    /*never return*/
+
+.back_to_caller:
+    mov rdi, qword ptr [rbp - 0x8]
+    mov rsi, 1
+    call longjmp
+    /* never return */
 
 initial_call:
     push rbp

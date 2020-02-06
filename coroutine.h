@@ -12,6 +12,7 @@ typedef struct __coroutine
     void (*func)(struct __coroutine *);
     jmp_buf *context_coroutine;
     jmp_buf *context_caller;
+    jmp_buf *context_back;
     uint64_t *stack;
 } coroutine;
 
@@ -20,6 +21,6 @@ extern void *call_coroutine(coroutine *frame);
 extern void yield(coroutine *frame, void *value);
 extern void show_info(coroutine *coroutine);
 extern void initial_call(coroutine *frame, uint64_t *rbp, void *func);
-extern void back_to_coroutine(struct __jmp_buf_tag *__env, uint64_t *rbp);
+extern void back_to_coroutine(jmp_buf __env, uint64_t *rbp, jmp_buf caller);
 
 #endif

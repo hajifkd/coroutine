@@ -24,6 +24,7 @@ coroutine *new_coroutine(void (*func)(coroutine *), void *env)
     result->func = func;
     result->context_coroutine = (jmp_buf *)malloc(sizeof(jmp_buf));
     result->context_caller = (jmp_buf *)malloc(sizeof(jmp_buf));
+    result->context_back = (jmp_buf *)malloc(sizeof(jmp_buf));
     result->stack = (uint64_t *)malloc(sizeof(uint64_t) * STACK_SIZE);
 
     return result;
@@ -42,7 +43,7 @@ void *call_coroutine(coroutine *frame)
 {
     if (setjmp(*(frame->context_caller)) == 0)
     {
-        uint64_t *rbp = frame->stack + STACK_SIZE - 1;
+        uint64_t *rbp = frame->stack + STACK_SIZE;
         if (!frame->value)
         {
             void *func = frame->func;
@@ -50,7 +51,16 @@ void *call_coroutine(coroutine *frame)
         }
         else
         {
-            back_to_coroutine(*(frame->context_coroutine), rbp);
+            // int r;
+            if (setjmp(*(frame->context_back)) == 0)
+            {
+                back_to_coroutine(*(frame->context_coroutine), rbp, *(frame->context_back));
+                // puts("Unreachable");
+            }
+            else
+            {
+                // printf("Returned: %d\n", r);
+            }
         }
 
         // if reached
